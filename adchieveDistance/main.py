@@ -8,42 +8,37 @@
 # sort list by distance---done
 # print in format---done
 
+import aiohttp
 import asyncio
-import http.client
-import urllib.parse
-import json
 from operator import attrgetter
 
 import locations
 
 locs = locations.create_location_list("addresses.txt")
 
-conn = http.client.HTTPConnection('api.positionstack.com')
-
-YOUR_ACCESS_KEY = "9eb61b6aa98a57d4201f19b0253c92aa"
+YOUR_ACCESS_KEY = ""
 
 
-async def get_locations(loc):
+async def update_loc_with_lat_long(loc):
+    async with aiohttp.ClientSession() as session:
+        print(f"started for {loc.name}")
+        para = {
+            'access_key': YOUR_ACCESS_KEY,
+            'query': loc.address,
+            'fields': 'results.latitude',
+            'limit': 1,
+        }
+        url = "http://api.positionstack.com/v1/forward"
+        async with session.get(url, params=para) as resp:
+            b = await resp.json()
+            loc.add_long_lat(b)
 
-    params = urllib.parse.urlencode({
-        'access_key': YOUR_ACCESS_KEY,
-        'query': loc.address,
-        'fields': 'results.latitude',
-        'limit': 1,
-    })
-    print(f"started for {loc.name}")
-    conn.request('GET', '/v1/forward?{}'.format(params))
-    res = conn.getresponse()
 
-    data = res.read()
-    b = json.loads(data)
-    loc.add_long_lat(b)
-    return loc
+async def update_list_async():
+    await asyncio.gather(*[update_loc_with_lat_long(loc) for loc in locs])
 
-async def update_locs(locs):
-    locs = [await get_locations(loc) for loc in locs ]
 
-asyncio.run(update_locs(locs))
+asyncio.run(update_list_async())
 
 source = None
 for i, loc in enumerate(locs):
@@ -56,5 +51,9 @@ for loc in locs:
 
 locs.sort(key=attrgetter('distance'))
 
-for i, loc in enumerate(locs):
-    print(str(i) + "," + str(loc))
+with open("abc.csv", "w") as csv_file:
+    csv_file.write("Sortnumber,Distance,Name,Address\n")
+    csv_file.write("\n".join([str(i+1) + "," + str(loc) for i, loc in enumerate(locs)]))
+
+
+
