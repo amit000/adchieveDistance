@@ -9,13 +9,15 @@
 # print in format
 
 import http.client, urllib.parse
+import json
+
 import locations
 
 locs = locations.create_location_list("addresses.txt")
 
 conn = http.client.HTTPConnection('api.positionstack.com')
 
-YOUR_ACCESS_KEY = ""
+YOUR_ACCESS_KEY = "9eb61b6aa98a57d4201f19b0253c92aa"
 for loc in locs:
     params = urllib.parse.urlencode({
         'access_key': YOUR_ACCESS_KEY,
@@ -23,11 +25,11 @@ for loc in locs:
         'fields': 'results.latitude',
         'limit': 1,
     })
-
     conn.request('GET', '/v1/forward?{}'.format(params))
-
     res = conn.getresponse()
     data = res.read()
+    b = json.loads(data)
+    loc.add_long_lat(b)
 
-    print(data.decode('utf-8'))
-    loc.
+for loc in locs:
+    print(loc)

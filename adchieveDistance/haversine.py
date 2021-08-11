@@ -23,6 +23,7 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.asin(math.sqrt(a))
     return rad * c
 
+
 def find_distance_geodata(loc1, loc2):
     lat1 = loc1.latitude
     lon1 = loc1.longitude
