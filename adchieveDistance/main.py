@@ -39,14 +39,16 @@ async def update_list_async(locs):
     await asyncio.gather(*[update_loc_with_lat_long(loc) for loc in locs])
 
 
-def write_to_csv(filename, locs):
+def write_to_csv(filename, distances):
     with open(filename, "w") as csv_file:
         csv_file.write("Sortnumber,Distance,Name,Address\n")
-        csv_file.write("\n".join([str(i + 1) + "," + str(loc) for i, loc in enumerate(locs)]))
+        row = 1
+        for location, dist in distances:
+            csv_file.write(str(row) + "," + str(f"{dist:.2f} km,") + str(location) + "\n")
+            row += 1
 
 
 if __name__ == "__main__":
-
 
     load_dotenv()
 
@@ -62,12 +64,9 @@ if __name__ == "__main__":
             source = locs.pop(i)
             break
 
-    for loc in locs:
-        loc.distance_from_source(source)
-    try:
-        locs.sort(key=attrgetter('distance'))
-    except TypeError as te:
-        print("Some location has invalid distance")
-    write_to_csv(os.getenv('CSV_FILE'), locs)
+    source.distance_from_self(locs)
+
+    sort_distances = sorted(source.distance.items(), key=lambda x: x[1])
+    write_to_csv(os.getenv('CSV_FILE'), sort_distances)
     end = datetime.now()
     print(end - start)

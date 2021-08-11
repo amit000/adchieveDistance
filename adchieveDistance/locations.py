@@ -7,13 +7,11 @@ class Location:
         self.address = address
         self.longitude = None
         self.latitude = None
-        self.distance = None
+        self.distance = {}
 
     def __repr__(self):
         if not self.distance:
-            return self.name + self.address
-        else:
-            return "\",\"".join(['"'+f"{self.distance:.2f}"+" km", self.name , self.address+'"'])
+            return "\"" + self.name + "\",\"" + self.address + "\""
 
     def add_long_lat(self, data):
         try:
@@ -22,10 +20,12 @@ class Location:
         except Exception as e:
             print("invalid response")
 
-    def distance_from_source(self, source):
-        if self.longitude and self.latitude and source.longitude and source.latitude:
-            self.distance = haversine.find_distance_geodata(self, source)
-        else :
+    def distance_from_self(self, targets):
+        if self.longitude and self.latitude:
+            for target in targets:
+                if target.longitude and target.latitude:
+                    self.distance[target] = haversine.find_distance_geodata(self, target)
+        else:
             print("invalid latitude longitudes")
 
 
