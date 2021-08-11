@@ -5,10 +5,12 @@
 # design function to calculate distance using long lat---done
 # find out source long latt--done
 # find out distance between source and every other address obj,---done
-# sort list by distance
-# print in format
+# sort list by distance---done
+# print in format---done
+
 import asyncio
-import http.client, urllib.parse
+import http.client
+import urllib.parse
 import json
 from operator import attrgetter
 
@@ -45,8 +47,11 @@ for i, loc in enumerate(locs):
     if loc.name == "Adchieve HQ":
         source = locs.pop(i)
         break
+
 for loc in locs:
     loc.distance_from_source(source)
+
 locs.sort(key=attrgetter('distance'))
+
 for i, loc in enumerate(locs):
     print(str(i) + "," + str(loc))
