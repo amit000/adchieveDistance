@@ -11,15 +11,17 @@
 import aiohttp
 import asyncio
 from operator import attrgetter
-
+from datetime import datetime
+from dotenv import load_dotenv
 import locations
+import os
 
 
 async def update_loc_with_lat_long(loc):
     async with aiohttp.ClientSession() as session:
 
         para = {
-            'access_key': YOUR_ACCESS_KEY,
+            'access_key': os.getenv('ACCESS_KEY'),
             'query': loc.address,
             'fields': 'results.latitude',
             'limit': 1,
@@ -30,7 +32,7 @@ async def update_loc_with_lat_long(loc):
                 b = await resp.json()
                 loc.add_long_lat(b)
             else:
-                raise
+                print("invalid response")
 
 
 async def update_list_async(locs):
@@ -44,17 +46,16 @@ def write_to_csv(filename, locs):
 
 
 if __name__ == "__main__":
-    from datetime import datetime
+
+
+    load_dotenv()
 
     start = datetime.now()
+    locs = locations.create_location_list(os.getenv('ADDRESS_FILE'))
+    asyncio.run(update_list_async(locs))
 
-    ADDRESS_FILE = "addresses.txt"
-    YOUR_ACCESS_KEY = ""
-    CSV_FILE = "sorted_distance.csv"
     START = "Adchieve HQ"
 
-    locs = locations.create_location_list(ADDRESS_FILE)
-    asyncio.run(update_list_async(locs))
     source = None
     for i, loc in enumerate(locs):
         if loc.name == START:
@@ -63,8 +64,10 @@ if __name__ == "__main__":
 
     for loc in locs:
         loc.distance_from_source(source)
-
-    locs.sort(key=attrgetter('distance'))
-    write_to_csv(CSV_FILE, locs)
+    try:
+        locs.sort(key=attrgetter('distance'))
+    except TypeError as te:
+        print("Some location has invalid distance")
+    write_to_csv(os.getenv('CSV_FILE'), locs)
     end = datetime.now()
     print(end - start)
