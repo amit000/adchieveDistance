@@ -7,10 +7,10 @@ class Location:
         self.address = address
 
     def __repr__(self):
-        if not self.longitude:
+        if not self.distance:
             return self.name + self.address
         else:
-            return self.name + str(self.distance) + self.address + str(self.longitude) + str(self.latitude)
+            return "\",\"".join(['"'+f"{self.distance:.2f}"+" km", self.name , self.address+'"'])
 
     def add_long_lat(self, data):
         self.longitude = data["data"][0]["longitude"]
