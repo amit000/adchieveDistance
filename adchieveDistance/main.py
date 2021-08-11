@@ -10,7 +10,6 @@
 
 import aiohttp
 import asyncio
-from operator import attrgetter
 from datetime import datetime
 from dotenv import load_dotenv
 import locations
@@ -23,7 +22,7 @@ async def update_loc_with_lat_long(loc):
         para = {
             'access_key': os.getenv('ACCESS_KEY'),
             'query': loc.address,
-            'fields': 'results.latitude',
+            #'fields': 'results.latitude',
             'limit': 1,
         }
         url = "http://api.positionstack.com/v1/forward"
