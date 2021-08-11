@@ -24,10 +24,10 @@ def haversine(lat1, lon1, lat2, lon2):
     return rad * c
 
 def find_distance_geodata(loc1, loc2):
-    lat1 = 51.5007 #loc1.lat
-    lon1 = 0.1246 #loc1.lon
-    lat2 = 40.6892 #loc2.lat
-    lon2 = 74.0445 #loc2.lon
+    lat1 = loc1.latitude
+    lon1 = loc1.longitude
+    lat2 = loc2.latitude
+    lon2 = loc2.longitude
 
     return haversine(lat1, lon1, lat2, lon2)
 
