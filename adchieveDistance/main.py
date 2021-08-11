@@ -20,27 +20,30 @@ locs = locations.create_location_list("addresses.txt")
 
 conn = http.client.HTTPConnection('api.positionstack.com')
 
-YOUR_ACCESS_KEY = ""
+YOUR_ACCESS_KEY = "9eb61b6aa98a57d4201f19b0253c92aa"
 
 
-async def get_locations(locs):
-    for loc in locs:
-        params = urllib.parse.urlencode({
-            'access_key': YOUR_ACCESS_KEY,
-            'query': loc.address,
-            'fields': 'results.latitude',
-            'limit': 1,
-        })
-        conn.request('GET', '/v1/forward?{}'.format(params))
-        res = conn.getresponse()
-        print(f"started for {loc.name}")
-        data = res.read()
-        b = json.loads(data)
-        loc.add_long_lat(b)
-    return locs
+async def get_locations(loc):
 
+    params = urllib.parse.urlencode({
+        'access_key': YOUR_ACCESS_KEY,
+        'query': loc.address,
+        'fields': 'results.latitude',
+        'limit': 1,
+    })
+    print(f"started for {loc.name}")
+    conn.request('GET', '/v1/forward?{}'.format(params))
+    res = conn.getresponse()
 
-locs = asyncio.run(get_locations(locs))
+    data = res.read()
+    b = json.loads(data)
+    loc.add_long_lat(b)
+    return loc
+
+async def update_locs(locs):
+    locs = [await get_locations(loc) for loc in locs ]
+
+asyncio.run(update_locs(locs))
 
 source = None
 for i, loc in enumerate(locs):
