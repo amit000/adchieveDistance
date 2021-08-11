@@ -10,7 +10,7 @@ class Location:
         if not self.longitude:
             return self.name + self.address
         else:
-            return self.name + self.address + str(self.longitude) + str(self.latitude)
+            return self.name + str(self.distance) + self.address + str(self.longitude) + str(self.latitude)
 
     def add_long_lat(self, data):
         self.longitude = data["data"][0]["longitude"]
