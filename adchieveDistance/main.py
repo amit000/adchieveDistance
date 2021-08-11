@@ -14,14 +14,10 @@ from operator import attrgetter
 
 import locations
 
-locs = locations.create_location_list("addresses.txt")
-
-YOUR_ACCESS_KEY = ""
-
 
 async def update_loc_with_lat_long(loc):
     async with aiohttp.ClientSession() as session:
-        print(f"started for {loc.name}")
+
         para = {
             'access_key': YOUR_ACCESS_KEY,
             'query': loc.address,
@@ -30,30 +26,45 @@ async def update_loc_with_lat_long(loc):
         }
         url = "http://api.positionstack.com/v1/forward"
         async with session.get(url, params=para) as resp:
-            b = await resp.json()
-            loc.add_long_lat(b)
+            if resp.status == 200:
+                b = await resp.json()
+                loc.add_long_lat(b)
+            else:
+                raise
 
 
-async def update_list_async():
+async def update_list_async(locs):
     await asyncio.gather(*[update_loc_with_lat_long(loc) for loc in locs])
 
 
-asyncio.run(update_list_async())
-
-source = None
-for i, loc in enumerate(locs):
-    if loc.name == "Adchieve HQ":
-        source = locs.pop(i)
-        break
-
-for loc in locs:
-    loc.distance_from_source(source)
-
-locs.sort(key=attrgetter('distance'))
-
-with open("abc.csv", "w") as csv_file:
-    csv_file.write("Sortnumber,Distance,Name,Address\n")
-    csv_file.write("\n".join([str(i+1) + "," + str(loc) for i, loc in enumerate(locs)]))
+def write_to_csv(filename, locs):
+    with open(filename, "w") as csv_file:
+        csv_file.write("Sortnumber,Distance,Name,Address\n")
+        csv_file.write("\n".join([str(i + 1) + "," + str(loc) for i, loc in enumerate(locs)]))
 
 
+if __name__ == "__main__":
+    from datetime import datetime
 
+    start = datetime.now()
+
+    ADDRESS_FILE = "addresses.txt"
+    YOUR_ACCESS_KEY = ""
+    CSV_FILE = "sorted_distance.csv"
+    START = "Adchieve HQ"
+
+    locs = locations.create_location_list(ADDRESS_FILE)
+    asyncio.run(update_list_async(locs))
+    source = None
+    for i, loc in enumerate(locs):
+        if loc.name == START:
+            source = locs.pop(i)
+            break
+
+    for loc in locs:
+        loc.distance_from_source(source)
+
+    locs.sort(key=attrgetter('distance'))
+    write_to_csv(CSV_FILE, locs)
+    end = datetime.now()
+    print(end - start)
