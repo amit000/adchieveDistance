@@ -1,3 +1,10 @@
+How to Run:
+1. pip install requirements.txt
+2. update .env with api key
+3. run main.py
+4. Further scope: change value of START in .env to calculate distances from other addresses
+
+Workflow:
 1. Read addresses from text file and create list of location objects
 2. Query geolocation API for longitude latitude of each address asynchronously
 3. Update objects in location list with their longitude latitudes
