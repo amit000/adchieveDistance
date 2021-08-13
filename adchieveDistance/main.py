@@ -22,7 +22,7 @@ async def update_loc_with_lat_long(loc):
         para = {
             'access_key': os.getenv('ACCESS_KEY'),
             'query': loc.address,
-            #'fields': 'results.latitude',
+            # 'fields': 'results.latitude',
             'limit': 1,
         }
         url = "http://api.positionstack.com/v1/forward"
@@ -55,11 +55,9 @@ if __name__ == "__main__":
     locs = locations.create_location_list(os.getenv('ADDRESS_FILE'))
     asyncio.run(update_list_async(locs))
 
-    START = "Adchieve HQ"
-
     source = None
     for i, loc in enumerate(locs):
-        if loc.name == START:
+        if loc.name == os.getenv('START'):
             source = locs.pop(i)
             break
 
